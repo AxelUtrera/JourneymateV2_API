@@ -5,6 +5,7 @@ import { RecomendationEntity } from "./recomendation.entity";
 import { ReviewEntity } from "./review.entity";
 import { RoleEntity } from "./role.entity";
 import { UserItineraryEntity } from "./user-itinerary.entity";
+import { VisitExpenseEntity } from "./visit-expense.entity";
 
 @Entity({ name: "users" })
 export class UserEntity {
@@ -66,4 +67,7 @@ export class UserEntity {
 
   @OneToMany(() => RecomendationEntity, recomendation => recomendation.user)
   recomendations: RecomendationEntity[];
+
+  @OneToMany(() => VisitExpenseEntity, visitExpense => visitExpense.user)
+  visit_expenses: VisitExpenseEntity[];
 }

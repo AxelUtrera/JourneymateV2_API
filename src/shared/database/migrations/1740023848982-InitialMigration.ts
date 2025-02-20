@@ -1,11 +1,12 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class InitialMigration1740020499800 implements MigrationInterface {
-    name = "InitialMigration1740020499800"
+export class InitialMigration1740023848982 implements MigrationInterface {
+    name = "InitialMigration1740023848982"
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query("CREATE TABLE \"recomendations\" (\"id\" uuid NOT NULL DEFAULT uuid_generate_v4(), \"comment\" text, \"created_at\" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), \"updated_at\" TIMESTAMP WITH TIME ZONE, \"deleted_at\" TIMESTAMP WITH TIME ZONE, \"user_id\" text, \"place_id\" uuid, CONSTRAINT \"PK_recomendations\" PRIMARY KEY (\"id\"))");
         await queryRunner.query("CREATE TABLE \"reviews\" (\"id\" SERIAL NOT NULL, \"comment\" text, \"rating\" integer, \"created_at\" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), \"updated_at\" TIMESTAMP WITH TIME ZONE NOT NULL, \"deleted_at\" TIMESTAMP WITH TIME ZONE, \"user_id\" text, \"place_id\" uuid, \"itinerary_id\" uuid, CONSTRAINT \"PK_231ae565c273ee700b283f15c1d\" PRIMARY KEY (\"id\"))");
+        await queryRunner.query("CREATE TABLE \"visit_expenses\" (\"id\" SERIAL NOT NULL, \"amount\" money NOT NULL, \"created_at\" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), \"userEmail\" text, \"placeId\" uuid, CONSTRAINT \"PK_visit_expenses\" PRIMARY KEY (\"id\"))");
         await queryRunner.query("CREATE TABLE \"places\" (\"id\" uuid NOT NULL DEFAULT uuid_generate_v4(), \"name\" text NOT NULL, \"description\" text, \"categories\" text array, \"address\" text, \"city\" text, \"state\" text NOT NULL, \"country\" text NOT NULL, \"location\" geometry, \"website\" text, \"tags\" text array, \"created_at\" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), \"updated_at\" TIMESTAMP WITH TIME ZONE, \"deleted_at\" TIMESTAMP WITH TIME ZONE, \"user_id\" text, CONSTRAINT \"PK_places\" PRIMARY KEY (\"id\"))");
         await queryRunner.query("CREATE TYPE \"public\".\"itineraries_places_status_enum\" AS ENUM('ACTIVE', 'COMPLETED', 'CANCELED')");
         await queryRunner.query("CREATE TABLE \"itineraries_places\" (\"id\" uuid NOT NULL, \"visit_order\" integer, \"visit_time\" TIME NOT NULL, \"status\" \"public\".\"itineraries_places_status_enum\" NOT NULL DEFAULT 'ACTIVE', \"duration\" TIME, \"created_at\" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), \"updated_at\" TIMESTAMP WITH TIME ZONE, \"itinerary_id\" uuid, \"place_id\" uuid, CONSTRAINT \"PK_itineraries_places\" PRIMARY KEY (\"id\"))");
@@ -19,6 +20,8 @@ export class InitialMigration1740020499800 implements MigrationInterface {
         await queryRunner.query("ALTER TABLE \"reviews\" ADD CONSTRAINT \"FK_reviews_user_id\" FOREIGN KEY (\"user_id\") REFERENCES \"users\"(\"email\") ON DELETE NO ACTION ON UPDATE NO ACTION");
         await queryRunner.query("ALTER TABLE \"reviews\" ADD CONSTRAINT \"FK_reviews_place_id\" FOREIGN KEY (\"place_id\") REFERENCES \"places\"(\"id\") ON DELETE NO ACTION ON UPDATE NO ACTION");
         await queryRunner.query("ALTER TABLE \"reviews\" ADD CONSTRAINT \"FK_reviews_itinerary_id\" FOREIGN KEY (\"itinerary_id\") REFERENCES \"itineraries\"(\"id\") ON DELETE NO ACTION ON UPDATE NO ACTION");
+        await queryRunner.query("ALTER TABLE \"visit_expenses\" ADD CONSTRAINT \"FK_a504b7d13be6bff4a9d469116e8\" FOREIGN KEY (\"userEmail\") REFERENCES \"users\"(\"email\") ON DELETE NO ACTION ON UPDATE NO ACTION");
+        await queryRunner.query("ALTER TABLE \"visit_expenses\" ADD CONSTRAINT \"FK_0df7ab4f2f0c09963754b179a31\" FOREIGN KEY (\"placeId\") REFERENCES \"places\"(\"id\") ON DELETE NO ACTION ON UPDATE NO ACTION");
         await queryRunner.query("ALTER TABLE \"places\" ADD CONSTRAINT \"FK_places_users\" FOREIGN KEY (\"user_id\") REFERENCES \"users\"(\"email\") ON DELETE CASCADE ON UPDATE NO ACTION");
         await queryRunner.query("ALTER TABLE \"itineraries_places\" ADD CONSTRAINT \"FK_itineraries_places_itinerary_id\" FOREIGN KEY (\"itinerary_id\") REFERENCES \"itineraries\"(\"id\") ON DELETE NO ACTION ON UPDATE NO ACTION");
         await queryRunner.query("ALTER TABLE \"itineraries_places\" ADD CONSTRAINT \"FK_itineraries_places_place_id\" FOREIGN KEY (\"place_id\") REFERENCES \"places\"(\"id\") ON DELETE NO ACTION ON UPDATE NO ACTION");
@@ -40,6 +43,8 @@ export class InitialMigration1740020499800 implements MigrationInterface {
         await queryRunner.query("ALTER TABLE \"itineraries_places\" DROP CONSTRAINT \"FK_itineraries_places_place_id\"");
         await queryRunner.query("ALTER TABLE \"itineraries_places\" DROP CONSTRAINT \"FK_itineraries_places_itinerary_id\"");
         await queryRunner.query("ALTER TABLE \"places\" DROP CONSTRAINT \"FK_places_users\"");
+        await queryRunner.query("ALTER TABLE \"visit_expenses\" DROP CONSTRAINT \"FK_0df7ab4f2f0c09963754b179a31\"");
+        await queryRunner.query("ALTER TABLE \"visit_expenses\" DROP CONSTRAINT \"FK_a504b7d13be6bff4a9d469116e8\"");
         await queryRunner.query("ALTER TABLE \"reviews\" DROP CONSTRAINT \"FK_reviews_itinerary_id\"");
         await queryRunner.query("ALTER TABLE \"reviews\" DROP CONSTRAINT \"FK_reviews_place_id\"");
         await queryRunner.query("ALTER TABLE \"reviews\" DROP CONSTRAINT \"FK_reviews_user_id\"");
@@ -53,6 +58,7 @@ export class InitialMigration1740020499800 implements MigrationInterface {
         await queryRunner.query("DROP TABLE \"itineraries_places\"");
         await queryRunner.query("DROP TYPE \"public\".\"itineraries_places_status_enum\"");
         await queryRunner.query("DROP TABLE \"places\"");
+        await queryRunner.query("DROP TABLE \"visit_expenses\"");
         await queryRunner.query("DROP TABLE \"reviews\"");
         await queryRunner.query("DROP TABLE \"recomendations\"");
     }
